@@ -22,7 +22,7 @@
     <Grid ColumnDefinitions="Auto, Auto" Grid.Row="1" ColumnSpacing="3" HorizontalAlignment="Center">
 
     <Button Grid.Column="0" HorizontalAlignment="Center" Content="Convert video" Command="{Binding Convert}"/>
-    <Button Grid.Column="1" HorizontalAlignment="Center" Content="Delete converted video (not working currently)" Command="{Binding Convert}"/>
+    <Button Grid.Column="1" HorizontalAlignment="Center" Content="Delete converted video" Command="{Binding DeleteConvertedVideo}"/>
         </Grid>
 <!--Click="Button_OnClick"-->
   <ProgressBar Grid.Row="2" Margin="0 10" Height="20" 

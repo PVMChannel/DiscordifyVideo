@@ -58,6 +58,7 @@ public partial class MainWindowViewModel : ViewModelBase
         }
     }
 
+    [RelayCommand]
     public async Task DeleteConvertedVideo()
     {
         if(ConvertedVideo == null) return;
