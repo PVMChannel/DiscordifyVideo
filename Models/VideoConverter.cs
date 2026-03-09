@@ -73,7 +73,7 @@ public class VideoConverter
                 progress.Report(convertionProgress);
             }));
 
-        
+        File.Delete(audioFileName);
         File.Delete(videoFileName);
 
         return finalFileName;
