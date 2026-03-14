@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
@@ -35,7 +36,37 @@ public class VideoConverter
         return string.Join(".", parts);
     }
 
-    public async Task<string> RunConvert(IProgress<ConvertionProgress> progress, string source, IVideoFormat videoFormat)
+    /// <summary>
+    /// tries to find an alternative file name
+    /// for the input of "video.mp4" it will try:
+    /// video.discordify.mp4
+    /// video.discordify2.mp4
+    /// video.discrodify3.mp4
+    /// etc.
+    /// </summary>
+    /// <param name="filePath">the FULL file path (eg. /path/to/video.mp4)</param>
+    /// <returns>the full file path of the new file name</returns>
+    private string findValidFilePath(string filePath)
+    {
+        string directoryName = Path.GetDirectoryName(filePath);
+        string fileName = Path.GetFileName(filePath);
+        List<string> parts = fileName.Split(".").ToList();
+
+        parts.Insert(parts.Count - 1, "discordify");
+        string newFileName = Path.Combine(directoryName, string.Join(".", parts));
+
+        int iterationNumber = 2;
+        // this part will get skipped if video.discordify.mp4 works
+        while (Path.Exists(newFileName))
+        {
+            parts[^2] = "discordify" + iterationNumber.ToString();
+            newFileName = Path.Combine(directoryName, string.Join(".", parts));
+        }
+
+        return newFileName;
+    }
+
+    public async Task<string> RunConvert(IProgress<ConvertionProgress> progress, string source, IVideoFormat videoFormat, string? outputFileName = null, string? outputDirectory = null)
     {
         ConvertionProgress convertionProgress = new ConvertionProgress();
 
@@ -45,9 +76,22 @@ public class VideoConverter
         // ^ ulozit jako mp4, aby do toho byly pripocitany i ty metadata
         string videoFileName = createTemporaryFilePath(videoFormat.VideoFileExtension);
 
-        string finalDirectoryFileName = createTemporaryFilePath();
-        Directory.CreateDirectory(finalDirectoryFileName);
-        string finalFileName = Path.Combine(finalDirectoryFileName, changeFileExtension(Path.GetFileName(source), videoFormat.VideoFileExtension));
+        string finalFileName;
+
+        if(outputFileName != null) finalFileName = outputFileName;
+        else if (outputDirectory != null)
+        {
+            finalFileName = Path.Combine(outputDirectory, changeFileExtension(Path.GetFileName(source), videoFormat.VideoFileExtension));
+
+            if(Path.Exists(finalFileName)) finalFileName = findValidFilePath(finalFileName);
+        }
+        else
+        {
+            string finalDirectoryFileName = createTemporaryFilePath();
+            Directory.CreateDirectory(finalDirectoryFileName);
+
+            finalFileName = Path.Combine(finalDirectoryFileName, changeFileExtension(Path.GetFileName(source), videoFormat.VideoFileExtension));
+        }
 
         await videoFormat.ConvertAudioToFile(videoInfo, source, audioFileName, new Progress<int>(value =>
             {

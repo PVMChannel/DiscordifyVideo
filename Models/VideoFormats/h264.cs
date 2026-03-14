@@ -72,7 +72,7 @@ public class h264 : IVideoFormat
 
         await FFMpegArguments.FromFileInput(audioFileName, true)
             .AddFileInput(videoFileName)
-            .OutputToFile(outputFileName, false, options => options
+            .OutputToFile(outputFileName, true, options => options
                 .CopyChannel()
             )
             .NotifyOnProgress(progressDouble =>

@@ -7,32 +7,48 @@
         x:Class="DiscordifyVideo.Views.MainWindow"
         x:DataType="vm:MainWindowViewModel"
         Icon="/Assets/avalonia-logo.ico"
-        Title="DiscordifyVideo"
-        MinWidth="500"
-        MinHeight="200">
+        Title="Discordify Video"
+        MinWidth="600"
+        MinHeight="280">
 
     <Design.DataContext>
         <!-- This only sets the DataContext for the previewer in an IDE,
              to set the actual DataContext for runtime, set the DataContext property in code (look at App.axaml.cs) -->
         <vm:MainWindowViewModel/>
     </Design.DataContext>
+    <StackPanel Spacing="10" Margin="10">
+        <DockPanel>
+            <TextBlock Grid.Column="0" VerticalAlignment="Center" Text="Save video to: "/>
+            <ComboBox Grid.Column="2" HorizontalAlignment="Right" VerticalAlignment="Center" SelectedIndex="{Binding SelectedSaveFileOption}">
+                <ComboBoxItem>Temporary file</ComboBoxItem>
+                <ComboBoxItem>Directory</ComboBoxItem>
+                <ComboBoxItem>Ask every time</ComboBoxItem>
+            </ComboBox>
+        </DockPanel>
 
-<Grid RowDefinitions="Auto, Auto, Auto, Auto, Auto">
-    <TextBlock TextBlock.TextWrapping="Wrap" Grid.Row="0" Text="Copy a video to clipboard, click the convert button, and your 10mb discord-playble video will be copied in your clipboard" HorizontalAlignment="Center" VerticalAlignment="Center"/>
-    <Grid ColumnDefinitions="Auto, Auto" Grid.Row="1" ColumnSpacing="3" HorizontalAlignment="Center">
+        <StackPanel Spacing="5">
+            <Button 
+                HorizontalContentAlignment="Center" HorizontalAlignment="Stretch" 
+                Content="{Binding SelectedDirectory, StringFormat='Select a directory (currently {0})'}"
+                IsEnabled="{Binding IsSelectDirectoryEnabled}"
+                Command="{Binding SelectDirectory}"
+                />
+            <CheckBox IsEnabled="{Binding IsCopyToClipboardAllowedToChange}" IsChecked="{Binding CopyToClipboard}">Copy to clipboard after conversion</CheckBox>
+        </StackPanel>
 
-    <Button Grid.Column="0" HorizontalAlignment="Center" Content="Convert video" Command="{Binding Convert}"/>
-    <Button Grid.Column="1" HorizontalAlignment="Center" Content="Delete converted video" Command="{Binding DeleteConvertedVideo}"/>
-        </Grid>
-<!--Click="Button_OnClick"-->
-  <ProgressBar Grid.Row="2" Margin="0 10" Height="20" 
+        <StackPanel Spacing="5">
+            <Button HorizontalAlignment="Stretch" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" Height="50" FontSize="25" Content="Convert video from clipboard" Command="{Binding ConvertFromClipboard}"/>
+            <Button HorizontalAlignment="Stretch" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" Content="Convert video from file" Command="{Binding ConvertFromFile}"/>
+        </StackPanel>
+
+        <StackPanel Spacing="5">
+            <ProgressBar Height="20" 
                 Minimum="0" Maximum="100" Value="{Binding Progress.AudioConvertionProgress}"
                 ShowProgressText="True"/>
-    <ProgressBar Grid.Row="3" Margin="0 10" Height="20" 
-Minimum="0" Maximum="100" Value="{Binding Progress.VideoConvertionProgress}"
-ShowProgressText="True"/>
-<ProgressBar Grid.Row="4" Margin="0 10" Height="20" 
-Minimum="0" Maximum="100" Value="{Binding Progress.CombiningProgress}"
-ShowProgressText="True"/>
-</Grid>
+            <ProgressBar Height="20" 
+                Minimum="0" Maximum="100" Value="{Binding Progress.VideoConvertionProgress}"
+                ShowProgressText="True"/>
+        </StackPanel>
+
+    </StackPanel>
 </Window>
