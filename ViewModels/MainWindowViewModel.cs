@@ -22,11 +22,17 @@ public partial class MainWindowViewModel : ViewModelBase
     [NotifyPropertyChangedFor(nameof(IsCopyToClipboardAllowedToChange))]
     [NotifyPropertyChangedFor(nameof(CopyToClipboard))]
     [NotifyPropertyChangedFor(nameof(IsSelectDirectoryEnabled))]
-    public int _selectedSaveFileOption = 0;
+    public int _selectedSaveFileOption = ConfigManager.CurrentConfig.SelectedSaveFileOption;
+
+    partial void OnSelectedSaveFileOptionChanged(int value)
+    {
+        ConfigManager.CurrentConfig.SelectedSaveFileOption = value;
+        ConfigManager.Save();
+    }
 
     public bool IsCopyToClipboardAllowedToChange => SelectedSaveFileOption != 0;
 
-    private bool _copyToClipboard = true;
+    private bool _copyToClipboard = ConfigManager.CurrentConfig.CopyToClipboard;
     public bool CopyToClipboard { 
         get => IsCopyToClipboardAllowedToChange ? _copyToClipboard : true; 
         set
@@ -35,6 +41,9 @@ public partial class MainWindowViewModel : ViewModelBase
 
             _copyToClipboard = value;
             OnPropertyChanged(nameof(CopyToClipboard));
+
+            ConfigManager.CurrentConfig.CopyToClipboard = value;
+            ConfigManager.Save();
         }
     }
 
@@ -43,7 +52,7 @@ public partial class MainWindowViewModel : ViewModelBase
     [ObservableProperty]
     public ConvertionProgress _progress = new ConvertionProgress();
 
-    private string? _selectedDirectory = null;
+    private string? _selectedDirectory = ConfigManager.CurrentConfig.SelectedDirectory;
     /// <summary>
     /// RETURNS ONLY LAST PART OF THE PATH!! USE _selecctedDirectory FOR FULL PATH.
     /// if its null, returns "none"
@@ -53,11 +62,11 @@ public partial class MainWindowViewModel : ViewModelBase
         set {
             _selectedDirectory = value;
             OnPropertyChanged(nameof(SelectedDirectory));
+            
+            ConfigManager.CurrentConfig.SelectedDirectory = value;
+            ConfigManager.Save();
         }
     }
-
-    
-    public string? ConvertedVideo = null;
 
     [RelayCommand]
     public async Task ConvertFromClipboard()
@@ -122,6 +131,12 @@ public partial class MainWindowViewModel : ViewModelBase
 
     private async Task Convert(string sourceFilePath)
     {
+        // delete old temporary file
+        if(ConfigManager.CurrentConfig.LastTemporaryVideoFile != null && ConfigManager.CurrentConfig.LastTemporaryVideoFile != sourceFilePath)
+        {
+            DeleteLastTemporaryVideo();
+        }
+
         var storageProvider = TopLevel.GetTopLevel(App.Current?.ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop2 ? desktop2.MainWindow : null)!.StorageProvider;
         // TODO: ???? ^ dekstop2?
     
@@ -147,7 +162,11 @@ public partial class MainWindowViewModel : ViewModelBase
 
         // muze byt text!!
         string fileName = await videoConverter.RunConvert(progressHandler, sourceFilePath, new h264(), outputFileName, outputDirectory);
-        ConvertedVideo = fileName;
+
+        if(SelectedSaveFileOption == 0) {
+            ConfigManager.CurrentConfig.LastTemporaryVideoFile = fileName;
+            ConfigManager.Save();
+        }
 
         if (CopyToClipboard)
         {
@@ -163,20 +182,17 @@ public partial class MainWindowViewModel : ViewModelBase
         }
 
     }
-    /// <summary>
-    /// does nothing for now
-    /// </summary>
-    /// <returns></returns>
-    [RelayCommand]
-    public async Task DeleteConvertedVideo()
-    {
-        return; // TODO: if output to directory is enabled, it would delete the directory if its empty
-        if(ConvertedVideo == null) return;
-        
-        File.Delete(ConvertedVideo);
-        Directory.Delete(Path.GetDirectoryName(ConvertedVideo));
 
-        ConvertedVideo = null;
+    public async void DeleteLastTemporaryVideo()
+    {
+        string? LastTemporaryVideoFile = ConfigManager.CurrentConfig.LastTemporaryVideoFile;
+        if(LastTemporaryVideoFile == null) return;
+        
+        File.Delete(LastTemporaryVideoFile);
+        Directory.Delete(Path.GetDirectoryName(LastTemporaryVideoFile));
+
+        ConfigManager.CurrentConfig.LastTemporaryVideoFile = null;
+        ConfigManager.Save();
     }
 
     [RelayCommand]
