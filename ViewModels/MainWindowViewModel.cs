@@ -183,7 +183,7 @@ public partial class MainWindowViewModel : ViewModelBase
 
     }
 
-    public async void DeleteLastTemporaryVideo()
+    public void DeleteLastTemporaryVideo()
     {
         string? LastTemporaryVideoFile = ConfigManager.CurrentConfig.LastTemporaryVideoFile;
         if(LastTemporaryVideoFile == null) return;
