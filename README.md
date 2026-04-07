@@ -7,12 +7,10 @@ The (probably) fastest way to convert your videos under 10MiB to upload them to 
 - All of the conversion is done locally on your PC and CPU (there is no GPU acceleration *yet*).
 
 # Installation
-If you don't know how to install FFmpeg, just wait a few days. I'm working on a feature that downloads it automatically.
-- Install and setup FFmpeg
-- Download a release and run it
+Download a release for your OS and run it.
 
 # Roadmap
-- [ ] Automatic FFmpeg installation
+- [x] Automatic FFmpeg installation
 - [ ] Retry failed videos that are over 10MiB
 - [ ] H.265 support
 - [ ] AV1 support
