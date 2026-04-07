@@ -9,7 +9,10 @@ public class ConfigManager
     private static string ConfigFileName = "config.json";
     private static string ConfigFileDirectory = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "DiscordifyVideo");
     private static string ConfigFilePath =  Path.Combine(ConfigFileDirectory, ConfigFileName);
+    public static string BinaryPath = Path.Join(ConfigFileDirectory, "bin");
+
     public static Config CurrentConfig;
+
     public static void Load()
     {
         if(!File.Exists(ConfigFilePath)) {

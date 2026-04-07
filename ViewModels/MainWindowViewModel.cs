@@ -11,6 +11,7 @@ using Avalonia.Input;
 using Avalonia.Platform.Storage;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using DiscordifyVideo.Models;
 using FFMpegCore;
 using FFMpegCore.Arguments;
 
@@ -211,5 +212,10 @@ public partial class MainWindowViewModel : ViewModelBase
         var PickedFolder = PickedFolders[0];
 
         SelectedDirectory = PickedFolder.TryGetLocalPath();
+    }
+
+    public bool CheckForFFMpeg()
+    {
+        return FFMpegDownloaderModel.CheckAndFindFFMpeg();
     }
 }
