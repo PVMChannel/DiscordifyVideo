@@ -1,0 +1,50 @@
+# First time using github workflows, made with AI then modified
+name: Publish Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+jobs:
+  release:
+    name: Build and Publish
+    permissions:
+      contents: write
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        include:
+          - os: windows-latest
+            runtime: win-x64
+            artifact_name: DiscordifyVideo-Windows.zip
+          - os: ubuntu-latest
+            runtime: linux-x64
+            artifact_name: DiscordifyVideo-Linux.tar.gz
+
+    steps:
+    - name: Checkout Code
+      uses: actions/checkout@v4
+
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: '9.0.x'
+
+    - name: Publish App
+      run: dotnet publish -c Release -r ${{ matrix.runtime }} --self-contained true /p:PublishSingleFile=true -o ./publish
+
+    - name: Zip Artifact (Windows)
+      if: runner.os == 'Windows'
+      run: Compress-Archive -Path ./publish/* -DestinationPath ${{ matrix.artifact_name }}
+
+    - name: Tar Artifact (Linux)
+      if: runner.os == 'Linux'
+      run: tar -czvf ${{ matrix.artifact_name }} -C ./publish .
+
+    - name: Upload to Release
+      uses: softprops/action-gh-release@v2
+      with:
+        files: ${{ matrix.artifact_name }}
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
