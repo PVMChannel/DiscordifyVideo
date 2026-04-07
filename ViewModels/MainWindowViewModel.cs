@@ -188,9 +188,9 @@ public partial class MainWindowViewModel : ViewModelBase
     {
         string? LastTemporaryVideoFile = ConfigManager.CurrentConfig.LastTemporaryVideoFile;
         if(LastTemporaryVideoFile == null) return;
-        
-        File.Delete(LastTemporaryVideoFile);
-        Directory.Delete(Path.GetDirectoryName(LastTemporaryVideoFile));
+
+        if(File.Exists(LastTemporaryVideoFile)) File.Delete(LastTemporaryVideoFile);
+        if(Directory.Exists(Path.GetDirectoryName(LastTemporaryVideoFile))) Directory.Delete(Path.GetDirectoryName(LastTemporaryVideoFile));
 
         ConfigManager.CurrentConfig.LastTemporaryVideoFile = null;
         ConfigManager.Save();
