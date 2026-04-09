@@ -5,6 +5,7 @@ using System.Reflection.Metadata.Ecma335;
 using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 using Avalonia;
+using DiscordifyVideo.Models;
 using FFMpegCore;
 using FFMpegCore.Arguments;
 using FFMpegCore.Enums;
@@ -35,7 +36,7 @@ public class h264 : IVideoFormat
         // 125, because it is kilobits
         int bitrateInKiloBits = (int) (bitrateInBytes / 125);
 
-        string passlogfile = VideoConverter.createTemporaryFilePath();
+        string passlogfile = FileManager.CreateTemporaryFilePath();
 
         await FFMpegArguments.FromFileInput(originalVideoFileName, true)
             .OutputToFile(NULL_FILE, true, options => options
