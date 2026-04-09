@@ -22,7 +22,7 @@ public class VideoConverter
         var videoInfo = await FFProbe.AnalyseAsync(source);
 
         string audioFileName = FileManager.CreateTemporaryFilePath(videoFormat.AudioFileExtension);
-        // ^ ulozit jako mp4, aby do toho byly pripocitany i ty metadata
+        // ^ save as mp4, so that the metadata will be added to the calculation
         string videoFileName = FileManager.CreateTemporaryFilePath(videoFormat.VideoFileExtension);
 
         string finalFileName;
@@ -70,8 +70,5 @@ public class VideoConverter
         File.Delete(videoFileName);
 
         return finalFileName;
-
-
-        Debug.WriteLine("hotovo?");
     }
 }

@@ -76,6 +76,7 @@ public partial class MainWindowViewModel : ViewModelBase
         var clipboard = TopLevel.GetTopLevel(App.Current?.ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop ? desktop.MainWindow : null)?.Clipboard;
         if (clipboard == null) return;
 
+        // can be text!!
         string filePath = await clipboard.GetTextAsync();
 
         await Convert(filePath);
@@ -161,7 +162,6 @@ public partial class MainWindowViewModel : ViewModelBase
             if(outputFileName == null) return;
         }
 
-        // muze byt text!!
         string fileName = await videoConverter.RunConvert(progressHandler, sourceFilePath, new h264(), outputFileName, outputDirectory);
 
         if(SelectedSaveFileOption == 0) {
