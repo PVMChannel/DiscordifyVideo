@@ -76,9 +76,12 @@ public partial class MainWindowViewModel : ViewModelBase
         var clipboard = TopLevel.GetTopLevel(App.Current?.ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop ? desktop.MainWindow : null)?.Clipboard;
         if (clipboard == null) return;
 
-        // can be text!!
         string filePath = await clipboard.GetTextAsync();
 
+        // maybe check with clipboard data type
+        if (!File.Exists(filePath)) return;
+
+        // TODO: check if file is video
         await Convert(filePath);
     }
 
