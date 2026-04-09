@@ -12,6 +12,7 @@ Download a release for your OS and run it.
 # Roadmap
 - [x] Automatic FFmpeg installation
 - [ ] Retry failed videos that are over 10MiB
+- [ ] Multi audio track support
 - [ ] H.265 support
 - [ ] AV1 support
 - [ ] VP9 (.webm) support
