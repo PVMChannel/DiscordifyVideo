@@ -1,5 +1,6 @@
 using System;
 using System.Diagnostics;
+using System.IO;
 using System.Reflection.Metadata.Ecma335;
 using System.Runtime.InteropServices;
 using System.Threading.Tasks;
@@ -34,6 +35,8 @@ public class h264 : IVideoFormat
         // 125, because it is kilobits
         int bitrateInKiloBits = (int) (bitrateInBytes / 125);
 
+        string passlogfile = VideoConverter.createTemporaryFilePath();
+
         await FFMpegArguments.FromFileInput(originalVideoFileName, true)
             .OutputToFile(NULL_FILE, true, options => options
                 .DisableChannel(Channel.Audio)
@@ -41,7 +44,8 @@ public class h264 : IVideoFormat
                 .WithSpeedPreset(SPEED_PRESET)
                 .WithVideoBitrate(bitrateInKiloBits)
                 .WithCustomArgument("-bufsize "+bitrateInKiloBits+"k")
-                .WithCustomArgument("-pass 1") //* maybe change passlogfile
+                .WithCustomArgument("-pass 1")
+                .WithCustomArgument("-passlogfile "+passlogfile)
                 .ForceFormat("null")
             )
             .NotifyOnProgress(progressDouble =>
@@ -57,13 +61,18 @@ public class h264 : IVideoFormat
                 .WithSpeedPreset(SPEED_PRESET)
                 .WithVideoBitrate(bitrateInKiloBits)
                 .WithCustomArgument("-bufsize "+bitrateInKiloBits+"k")
-                .WithCustomArgument("-pass 2") //* maybe change passlogfile
+                .WithCustomArgument("-pass 2")
+                .WithCustomArgument("-passlogfile "+passlogfile)
             )
             .NotifyOnProgress(progressDouble =>
             {
                 progress.Report(50 + (int) progressDouble / 2);
             }, videoInfo.Duration)
             .ProcessAsynchronously();
+
+        // cleanup after two-pass, for multi-track video support there will be more files
+        File.Delete(passlogfile + "-0.log");
+        File.Delete(passlogfile + "-0.log.mbtree");
     }
 
     public async Task CombineAudioAndVideo(IMediaAnalysis videoInfo, string audioFileName, string videoFileName, string outputFileName, IProgress<int> progress)

@@ -16,11 +16,11 @@ public class VideoConverter
         
     }
 
-    public string createTemporaryFilePath()
+    public static string createTemporaryFilePath()
     {
         return Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString());
     }
-    public string createTemporaryFilePath(string extension)
+    public static string createTemporaryFilePath(string extension)
     {
         return Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString() + "." + extension);
     }
