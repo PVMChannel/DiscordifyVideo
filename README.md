@@ -7,7 +7,7 @@ The (probably) fastest way to convert your videos under 10MiB to upload them to 
 - All of the conversion is done locally on your PC and CPU (there is no GPU acceleration *yet*).
 
 # Installation
-Download a release for your OS and run it.
+[Download a release](https://github.com/PVMChannel/DiscordifyVideo/releases) for your OS and run it.
 
 # Roadmap
 - [x] Automatic FFmpeg installation
@@ -18,7 +18,7 @@ Download a release for your OS and run it.
 - [ ] VP9 (.webm) support
 - [ ] Comparison table for different codecs
 - [ ] GPU acceleration
-- [ ] Option to select the video size
+- [ ] More options (video size, video length and more)
 
 # Contributing
 Don't. But feel free to open issues for any issues or suggestions.
