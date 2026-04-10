@@ -9,7 +9,9 @@
         Icon="/Assets/avalonia-logo.ico"
         Title="Discordify Video"
         MinWidth="600"
-        MinHeight="280">
+        MinHeight="280"
+        Width="600"
+        Height="280">
 
     <Design.DataContext>
         <!-- This only sets the DataContext for the previewer in an IDE,
