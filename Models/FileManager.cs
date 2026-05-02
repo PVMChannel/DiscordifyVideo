@@ -46,10 +46,11 @@ public class FileManager
         parts.Insert(parts.Count - 1, "discordify");
         string newFileName = Path.Combine(directoryName, string.Join(".", parts));
 
-        int iterationNumber = 2;
+        int iterationNumber = 1;
         // this part will get skipped if video.discordify.mp4 works
         while (Path.Exists(newFileName))
         {
+            iterationNumber++;
             parts[^2] = "discordify" + iterationNumber.ToString();
             newFileName = Path.Combine(directoryName, string.Join(".", parts));
         }
