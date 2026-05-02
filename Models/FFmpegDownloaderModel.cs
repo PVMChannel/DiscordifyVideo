@@ -51,13 +51,16 @@ public class FFMpegDownloaderModel
     {
         Directory.CreateDirectory(ConfigManager.BinaryPath);
 
-        await FFMpegDownloader.DownloadBinaries(
-            FFMpegVersions.LatestAvailable, 
-            FFMpegBinaries.FFMpeg | FFMpegBinaries.FFProbe, 
-            new(){
-                BinaryFolder = ConfigManager.BinaryPath
-            }
-        ); 
+       await Task.Run(async () =>
+        {
+            await FFMpegDownloader.DownloadBinaries(
+                FFMpegVersions.LatestAvailable, 
+                FFMpegBinaries.FFMpeg | FFMpegBinaries.FFProbe, 
+                new(){
+                    BinaryFolder = ConfigManager.BinaryPath
+                }
+            ); 
+        });
         
         GlobalFFOptions.Current.BinaryFolder = ConfigManager.BinaryPath;
     }
