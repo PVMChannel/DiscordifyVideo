@@ -21,9 +21,9 @@ public class VideoConverter
 
         var videoInfo = await FFProbe.AnalyseAsync(source);
 
-        string audioFileName = FileManager.CreateTemporaryFilePath(videoFormat.AudioFileExtension);
-        // ^ save as mp4, so that the metadata will be added to the calculation
-        string videoFileName = FileManager.CreateTemporaryFilePath(videoFormat.VideoFileExtension);
+        using MemoryStream audioStream = new();
+        // ^ metadata should be added to bitrate calculation
+        using MemoryStream videoStream = new();
 
         string finalFileName;
 
@@ -42,32 +42,30 @@ public class VideoConverter
             finalFileName = Path.Combine(finalDirectoryFileName, FileManager.ChangeFileExtension(Path.GetFileName(source), videoFormat.VideoFileExtension));
         }
 
-        await videoFormat.ConvertAudioToFile(videoInfo, source, audioFileName, new Progress<int>(value =>
+        await videoFormat.ConvertAudio(videoInfo, source, audioStream, new Progress<int>(value =>
             {
                 convertionProgress.AudioConvertionProgress = value;
                 progress.Report(convertionProgress);
             }));
 
-        long audioAndMetadataSizeBytes = new FileInfo(audioFileName).Length;
+        long audioAndMetadataSizeBytes = audioStream.Length;
         long videoSizeAvailable = TARGET_SIZE - audioAndMetadataSizeBytes;
 
         long targetBitrateInBytes = (long) (videoSizeAvailable / videoInfo.Duration.TotalSeconds);
 
-        await videoFormat.ConvertVideoToFile(videoInfo, source, videoFileName, targetBitrateInBytes, new Progress<int>(value =>
+        await videoFormat.ConvertVideo(videoInfo, source, videoStream, targetBitrateInBytes, new Progress<int>(value =>
             {
                 convertionProgress.VideoConvertionProgress = value;
                 progress.Report(convertionProgress);
             }));
             
-
-        await videoFormat.CombineAudioAndVideo(videoInfo, audioFileName, videoFileName, finalFileName, new Progress<int>(value =>
+        audioStream.Position = 0;
+        videoStream.Position = 0;
+        await videoFormat.CombineAudioAndVideo(videoInfo, audioStream, videoStream, finalFileName, new Progress<int>(value =>
             {
                 convertionProgress.CombiningProgress = value;
                 progress.Report(convertionProgress);
             }));
-
-        File.Delete(audioFileName);
-        File.Delete(videoFileName);
 
         return finalFileName;
     }

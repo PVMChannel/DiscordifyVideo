@@ -9,6 +9,7 @@ using DiscordifyVideo.Models;
 using FFMpegCore;
 using FFMpegCore.Arguments;
 using FFMpegCore.Enums;
+using FFMpegCore.Pipes;
 
 public class h264 : IVideoFormat
 {
@@ -17,10 +18,12 @@ public class h264 : IVideoFormat
     public string AudioFileExtension { get => "mp4"; }
     public string VideoFileExtension { get => "mp4"; }
 
-    public async Task ConvertAudioToFile(IMediaAnalysis videoInfo, string originalVideoFileName, string newFileName, IProgress<int> progress)
+    public async Task ConvertAudio(IMediaAnalysis videoInfo, string originalVideoFileName, Stream outputStream, IProgress<int> progress)
     {
         await FFMpegArguments.FromFileInput(originalVideoFileName, true)
-            .OutputToFile(newFileName, false, options => options
+            .OutputToPipe(new StreamPipeSink(outputStream), options => options
+                .ForceFormat("mp4")
+                .WithCustomArgument("-movflags frag_keyframe")
                 .SelectStream(0, 0, Channel.Audio)
                 .WithAudioCodec("libopus")
             )
@@ -31,7 +34,7 @@ public class h264 : IVideoFormat
             .ProcessAsynchronously();
     }
 
-    public async Task ConvertVideoToFile(IMediaAnalysis videoInfo, string originalVideoFileName, string newFileName, long bitrateInBytes, IProgress<int> progress)
+    public async Task ConvertVideo(IMediaAnalysis videoInfo, string originalVideoFileName, Stream outputStream, long bitrateInBytes, IProgress<int> progress)
     {
         // 125, because it is kilobits
         int bitrateInKiloBits = (int) (bitrateInBytes / 125);
@@ -56,7 +59,9 @@ public class h264 : IVideoFormat
             .ProcessAsynchronously();
 
         await FFMpegArguments.FromFileInput(originalVideoFileName, true)
-            .OutputToFile(newFileName, false, options => options
+            .OutputToPipe(new StreamPipeSink(outputStream), options => options
+                .ForceFormat("mp4")
+                .WithCustomArgument("-movflags frag_keyframe")
                 .DisableChannel(Channel.Audio)
                 .WithVideoCodec(VideoCodec.LibX264)
                 .WithSpeedPreset(SPEED_PRESET)
@@ -76,12 +81,12 @@ public class h264 : IVideoFormat
         File.Delete(passlogfile + "-0.log.mbtree");
     }
 
-    public async Task CombineAudioAndVideo(IMediaAnalysis videoInfo, string audioFileName, string videoFileName, string outputFileName, IProgress<int> progress)
+    public async Task CombineAudioAndVideo(IMediaAnalysis videoInfo, Stream audioStream, Stream videoStream, string outputFileName, IProgress<int> progress)
     {
         Debug.WriteLine(outputFileName);
 
-        await FFMpegArguments.FromFileInput(audioFileName, true)
-            .AddFileInput(videoFileName)
+        await FFMpegArguments.FromPipeInput(new StreamPipeSource(audioStream))
+            .AddPipeInput(new StreamPipeSource(videoStream))
             .OutputToFile(outputFileName, true, options => options
                 .CopyChannel()
             )
