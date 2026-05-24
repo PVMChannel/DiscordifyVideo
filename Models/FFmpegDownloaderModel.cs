@@ -8,6 +8,7 @@ using FFMpegCore;
 using FFMpegCore.Exceptions;
 using FFMpegCore.Extensions.Downloader;
 using FFMpegCore.Extensions.Downloader.Enums;
+using Instances.Exceptions;
 
 namespace DiscordifyVideo.Models;
 
@@ -17,7 +18,8 @@ public class FFMpegDownloaderModel
     {
         return (
                 (exception is FFMpegException) || // linux probably
-                (exception is Win32Exception winexception && winexception.NativeErrorCode == 2) // windows
+                (exception is Win32Exception winexception && winexception.NativeErrorCode == 2) || // windows??
+                (exception is InstanceFileNotFoundException) // windows again
             );
     }
     public static bool CheckAndFindFFMpeg()
