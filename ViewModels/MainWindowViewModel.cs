@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Dynamic;
@@ -12,6 +12,7 @@ using Avalonia.Platform.Storage;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using DiscordifyVideo.Models;
+using DiscordifyVideo.Views;
 using FFMpegCore;
 using FFMpegCore.Arguments;
 
@@ -69,6 +70,12 @@ public partial class MainWindowViewModel : ViewModelBase
         }
     }
 
+    private readonly IDialogService _dialogService;
+    public MainWindowViewModel(IDialogService dialogService)
+    {
+        _dialogService = dialogService;
+    }
+
     [RelayCommand]
     public async Task ConvertFromClipboard()
     {
@@ -82,7 +89,7 @@ public partial class MainWindowViewModel : ViewModelBase
         if (!File.Exists(filePath)) return;
 
         // TODO: check if file is video
-        await Convert(filePath);
+        await OpenConversionDialog(filePath);
     }
 
     private static Dictionary<string, string> extraFormats = new Dictionary<string, string>()
@@ -112,7 +119,7 @@ public partial class MainWindowViewModel : ViewModelBase
 
         if (files.Count < 1) return;
 
-        await Convert(files[0].TryGetLocalPath());
+        await OpenConversionDialog(files[0].TryGetLocalPath());
     }
 
     public async Task<string?> OpenSaveToDialog()
@@ -134,7 +141,19 @@ public partial class MainWindowViewModel : ViewModelBase
         return file.TryGetLocalPath();
     }
 
-    private async Task Convert(string sourceFilePath)
+    private async Task OpenConversionDialog(string sourceFilePath)
+    {
+        IMediaAnalysis FFProbeAnalysis = await FFProbe.AnalyseAsync(sourceFilePath);
+
+        VideoSpecificConversionSettings? videoSpecificConversionSettings = await _dialogService.OpenVideoSpecificConversionSettingsDialog(sourceFilePath, FFProbeAnalysis);
+        
+        // return if cancelled
+        if(videoSpecificConversionSettings == null) return;
+
+        await Convert(sourceFilePath, videoSpecificConversionSettings);
+    }
+
+    private async Task Convert(string sourceFilePath, VideoSpecificConversionSettings videoSpecificConversionSettings)
     {
         // delete old temporary file
         if(ConfigManager.CurrentConfig.LastTemporaryVideoFile != null && ConfigManager.CurrentConfig.LastTemporaryVideoFile != sourceFilePath)
@@ -165,7 +184,7 @@ public partial class MainWindowViewModel : ViewModelBase
             if(outputFileName == null) return;
         }
 
-        string fileName = await videoConverter.RunConvert(progressHandler, sourceFilePath, new h264(), outputFileName, outputDirectory);
+        string fileName = await videoConverter.RunConvert(progressHandler, sourceFilePath, new h264(), videoSpecificConversionSettings, outputFileName, outputDirectory);
 
         if(SelectedSaveFileOption == 0) {
             ConfigManager.CurrentConfig.LastTemporaryVideoFile = fileName;

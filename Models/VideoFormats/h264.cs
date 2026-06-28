@@ -18,10 +18,11 @@ public class h264 : IVideoFormat
     public string AudioFileExtension { get => "mp4"; }
     public string VideoFileExtension { get => "mp4"; }
 
-    public async Task ConvertAudio(IMediaAnalysis videoInfo, string originalVideoFileName, Stream outputStream, IProgress<int> progress)
+    public async Task ConvertAudio(IMediaAnalysis videoInfo, string originalVideoFileName, Stream outputStream, VideoSpecificConversionSettings settings, IProgress<int> progress)
     {
-        await FFMpegArguments.FromFileInput(originalVideoFileName, true)
+        await FFMpegArguments.FromFileInput(originalVideoFileName, true, options => options.ApplyAudioSpecificInputSettings(settings))
             .OutputToPipe(new StreamPipeSink(outputStream), options => options
+                .ApplyAudioSpecificOutputSettings(settings)
                 .ForceFormat("mp4")
                 .WithCustomArgument("-movflags frag_keyframe")
                 .SelectStream(0, 0, Channel.Audio)
@@ -34,15 +35,16 @@ public class h264 : IVideoFormat
             .ProcessAsynchronously();
     }
 
-    public async Task ConvertVideo(IMediaAnalysis videoInfo, string originalVideoFileName, Stream outputStream, long bitrateInBytes, IProgress<int> progress)
+    public async Task ConvertVideo(IMediaAnalysis videoInfo, string originalVideoFileName, Stream outputStream, VideoSpecificConversionSettings settings, long bitrateInBytes, IProgress<int> progress)
     {
         // 125, because it is kilobits
         int bitrateInKiloBits = (int) (bitrateInBytes / 125);
 
         string passlogfile = FileManager.CreateTemporaryFilePath();
 
-        await FFMpegArguments.FromFileInput(originalVideoFileName, true)
+        await FFMpegArguments.FromFileInput(originalVideoFileName, true, options => options.ApplyVideoSpecificInputSettings(settings))
             .OutputToFile(NULL_FILE, true, options => options
+                .ApplyVideoSpecificOutputSettings(settings)
                 .DisableChannel(Channel.Audio)
                 .WithVideoCodec(VideoCodec.LibX264)
                 .WithSpeedPreset(SPEED_PRESET)
@@ -58,8 +60,9 @@ public class h264 : IVideoFormat
             }, videoInfo.Duration)
             .ProcessAsynchronously();
 
-        await FFMpegArguments.FromFileInput(originalVideoFileName, true)
+        await FFMpegArguments.FromFileInput(originalVideoFileName, true, options => options.ApplyVideoSpecificInputSettings(settings))
             .OutputToPipe(new StreamPipeSink(outputStream), options => options
+                .ApplyVideoSpecificOutputSettings(settings)
                 .ForceFormat("mp4")
                 .WithCustomArgument("-movflags frag_keyframe")
                 .DisableChannel(Channel.Audio)

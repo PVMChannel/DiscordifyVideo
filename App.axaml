@@ -1,5 +1,6 @@
 <Application xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:themes="using:RangeSlider.Avalonia.Themes.Fluent"
              x:Class="DiscordifyVideo.App"
              xmlns:local="using:DiscordifyVideo"
              RequestedThemeVariant="Default">
@@ -11,5 +12,6 @@
   
     <Application.Styles>
         <FluentTheme />
+		<themes:RangeSliderTheme />
     </Application.Styles>
 </Application>

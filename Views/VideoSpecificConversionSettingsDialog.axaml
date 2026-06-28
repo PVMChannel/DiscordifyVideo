@@ -1,0 +1,51 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:vm="using:DiscordifyVideo.ViewModels"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:rs="using:RangeSlider.Avalonia.Controls"
+        xmlns:local="clr-namespace:DiscordifyVideo;assembly=DiscordifyVideo"
+        mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+        x:Class="DiscordifyVideo.Views.VideoSpecificConversionSettingsDialog"
+        x:DataType="vm:VideoSpecificConversionSettingsDialogViewModel"
+        Icon="/Assets/avalonia-logo.ico"
+        Title="Conversion settings"
+        MinWidth="600"
+        MinHeight="160"
+        Width="600"
+        Height="160">
+
+    <Window.Resources>
+        <local:TimeSpanConverter x:Key="timeSpanConverter"/>
+    </Window.Resources>
+
+    <Design.DataContext>
+        <!-- This only sets the DataContext for the previewer in an IDE,
+             to set the actual DataContext for runtime, set the DataContext property in code (look at App.axaml.cs) -->
+        <vm:MainWindowViewModel/>
+    </Design.DataContext>
+    <StackPanel Spacing="10" Margin="10">
+
+        <Grid ColumnDefinitions="100, *, 100">
+            <MaskedTextBox Grid.Column="0" VerticalAlignment="Center" Mask="00:00:00.00" Text="{Binding CutVideoStart, Converter={StaticResource timeSpanConverter}}"/>
+            <rs:RangeSlider Grid.Column="1" Minimum="0" Maximum="{Binding VideoDurationMilliseconds}" LowerSelectedValue="{Binding CutVideoStart, Converter={StaticResource timeSpanConverter}}" UpperSelectedValue="{Binding CutVideoEnd, Converter={StaticResource timeSpanConverter}}" IsThumbOverlap="True"/>
+            <MaskedTextBox Grid.Column="2" VerticalAlignment="Center" Mask="00:00:00.00" Text="{Binding CutVideoEnd, Converter={StaticResource timeSpanConverter}}"/>
+        </Grid>
+        
+        <StackPanel Orientation="Horizontal" Spacing="10">
+            <TextBlock Text="Target file size:" VerticalAlignment="Center" />
+            <TextBox Text="{Binding TargetSizeInMiB}">
+                <TextBox.InnerRightContent>
+                    <TextBlock Padding="0,0,10,0" Text="MiB" VerticalAlignment="Center"/>
+                </TextBox.InnerRightContent>
+            </TextBox>
+        </StackPanel>
+
+        <DockPanel>
+            <StackPanel DockPanel.Dock="Bottom" Orientation="Horizontal" HorizontalAlignment="Right" Spacing="15">
+                <Button Content="Cancel" Command="{Binding CancelCommand}" />
+                <Button Content="Start conversion" Command="{Binding ConfirmCommand}" />
+            </StackPanel>
+        </DockPanel>
+    </StackPanel>
+</Window>

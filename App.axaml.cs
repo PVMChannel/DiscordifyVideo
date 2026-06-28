@@ -6,6 +6,7 @@ using System.Linq;
 using Avalonia.Markup.Xaml;
 using DiscordifyVideo.ViewModels;
 using DiscordifyVideo.Views;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace DiscordifyVideo;
 
@@ -19,6 +20,10 @@ public partial class App : Application
 
     public override void OnFrameworkInitializationCompleted()
     {
+        var services = new ServiceCollection();
+        services.AddCommonServices();
+        var provider = services.BuildServiceProvider();
+
         if (ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
         {
             // Avoid duplicate validations from both Avalonia and the CommunityToolkit. 
@@ -26,7 +31,7 @@ public partial class App : Application
             DisableAvaloniaDataAnnotationValidation();
             desktop.MainWindow = new MainWindow
             {
-                DataContext = new MainWindowViewModel(),
+                DataContext = provider.GetRequiredService<MainWindowViewModel>()
             };
         }
 

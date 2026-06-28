@@ -15,7 +15,7 @@ public class VideoConverter
         
     }
 
-    public async Task<string> RunConvert(IProgress<ConvertionProgress> progress, string source, IVideoFormat videoFormat, string? outputFileName = null, string? outputDirectory = null)
+    public async Task<string> RunConvert(IProgress<ConvertionProgress> progress, string source, IVideoFormat videoFormat, VideoSpecificConversionSettings videoSpecificConversionSettings, string? outputFileName = null, string? outputDirectory = null)
     {
         ConvertionProgress convertionProgress = new ConvertionProgress();
 
@@ -42,7 +42,7 @@ public class VideoConverter
             finalFileName = Path.Combine(finalDirectoryFileName, FileManager.ChangeFileExtension(Path.GetFileName(source), videoFormat.VideoFileExtension));
         }
 
-        await videoFormat.ConvertAudio(videoInfo, source, audioStream, new Progress<int>(value =>
+        await videoFormat.ConvertAudio(videoInfo, source, audioStream, videoSpecificConversionSettings, new Progress<int>(value =>
             {
                 convertionProgress.AudioConvertionProgress = value;
                 progress.Report(convertionProgress);
@@ -53,7 +53,7 @@ public class VideoConverter
 
         long targetBitrateInBytes = (long) (videoSizeAvailable / videoInfo.Duration.TotalSeconds);
 
-        await videoFormat.ConvertVideo(videoInfo, source, videoStream, targetBitrateInBytes, new Progress<int>(value =>
+        await videoFormat.ConvertVideo(videoInfo, source, videoStream, videoSpecificConversionSettings, targetBitrateInBytes, new Progress<int>(value =>
             {
                 convertionProgress.VideoConvertionProgress = value;
                 progress.Report(convertionProgress);
