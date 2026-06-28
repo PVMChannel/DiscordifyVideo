@@ -50,7 +50,7 @@ public class VideoConverter
         long audioAndMetadataSizeBytes = audioStream.Length;
         long videoSizeAvailable = videoSpecificConversionSettings.TargetSize - audioAndMetadataSizeBytes;
 
-        long targetBitrateInBytes = (long) (videoSizeAvailable / (videoSpecificConversionSettings.CutVideoEnd - videoSpecificConversionSettings.CutVideoStart).TotalSeconds);
+        long targetBitrateInBytes = (long) (videoSizeAvailable / videoSpecificConversionSettings.FinalVideoDuration.TotalSeconds);
 
         await videoFormat.ConvertVideo(videoInfo, source, videoStream, videoSpecificConversionSettings, targetBitrateInBytes, new Progress<int>(value =>
             {
