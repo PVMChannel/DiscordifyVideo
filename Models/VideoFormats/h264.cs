@@ -30,7 +30,7 @@ public class h264 : IVideoFormat
             .NotifyOnProgress((progressDouble) =>
             {
                 progress.Report((int) progressDouble);
-            }, videoInfo.Duration)
+            }, settings.FinalVideoDuration)
             .ProcessAsynchronously();
     }
 
@@ -56,7 +56,7 @@ public class h264 : IVideoFormat
             .NotifyOnProgress(progressDouble =>
             {
                 progress.Report((int) progressDouble / 2);
-            }, videoInfo.Duration)
+            }, settings.FinalVideoDuration)
             .ProcessAsynchronously();
 
         await FFMpegArguments.FromFileInput(originalVideoFileName, true, options => options.ApplyVideoSpecificInputSettings(settings))
@@ -74,7 +74,7 @@ public class h264 : IVideoFormat
             .NotifyOnProgress(progressDouble =>
             {
                 progress.Report(50 + (int) progressDouble / 2);
-            }, videoInfo.Duration)
+            }, settings.FinalVideoDuration)
             .ProcessAsynchronously();
 
         // cleanup after two-pass, for multi-track video support there will be more files
