@@ -9,7 +9,6 @@ using FFMpegCore.Enums;
 
 public class VideoConverter
 {
-    public const long TARGET_SIZE = 10 * 1024 * 1024;
     public VideoConverter()
     {
         
@@ -49,9 +48,9 @@ public class VideoConverter
             }));
 
         long audioAndMetadataSizeBytes = audioStream.Length;
-        long videoSizeAvailable = TARGET_SIZE - audioAndMetadataSizeBytes;
+        long videoSizeAvailable = videoSpecificConversionSettings.TargetSize - audioAndMetadataSizeBytes;
 
-        long targetBitrateInBytes = (long) (videoSizeAvailable / videoInfo.Duration.TotalSeconds);
+        long targetBitrateInBytes = (long) (videoSizeAvailable / (videoSpecificConversionSettings.CutVideoEnd - videoSpecificConversionSettings.CutVideoStart).TotalSeconds);
 
         await videoFormat.ConvertVideo(videoInfo, source, videoStream, videoSpecificConversionSettings, targetBitrateInBytes, new Progress<int>(value =>
             {
