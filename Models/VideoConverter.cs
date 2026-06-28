@@ -60,11 +60,7 @@ public class VideoConverter
             
         audioStream.Position = 0;
         videoStream.Position = 0;
-        await videoFormat.CombineAudioAndVideo(videoInfo, audioStream, videoStream, finalFileName, new Progress<int>(value =>
-            {
-                convertionProgress.CombiningProgress = value;
-                progress.Report(convertionProgress);
-            }));
+        await videoFormat.CombineAudioAndVideo(videoInfo, audioStream, videoStream, finalFileName);
 
         return finalFileName;
     }

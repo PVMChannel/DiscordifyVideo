@@ -82,7 +82,7 @@ public class h264 : IVideoFormat
         File.Delete(passlogfile + "-0.log.mbtree");
     }
 
-    public async Task CombineAudioAndVideo(IMediaAnalysis videoInfo, Stream audioStream, Stream videoStream, string outputFileName, IProgress<int> progress)
+    public async Task CombineAudioAndVideo(IMediaAnalysis videoInfo, Stream audioStream, Stream videoStream, string outputFileName)
     {
         Debug.WriteLine(outputFileName);
 
@@ -91,10 +91,6 @@ public class h264 : IVideoFormat
             .OutputToFile(outputFileName, true, options => options
                 .CopyChannel()
             )
-            .NotifyOnProgress(progressDouble =>
-            {
-                progress.Report((int) progressDouble);
-            }, videoInfo.Duration)
             .ProcessAsynchronously();
 
     }
