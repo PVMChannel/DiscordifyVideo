@@ -22,7 +22,7 @@ public class VideoConverter
         var videoInfo = await FFProbe.AnalyseAsync(source);
 
         using MemoryStream audioStream = new();
-        // ^ metadata should be added to bitrate calculation
+        // TODO: add overhead for metadata
         using MemoryStream videoStream = new();
 
         string finalFileName;

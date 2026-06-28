@@ -23,8 +23,7 @@ public class h264 : IVideoFormat
         await FFMpegArguments.FromFileInput(originalVideoFileName, true, options => options.ApplyAudioSpecificInputSettings(settings))
             .OutputToPipe(new StreamPipeSink(outputStream), options => options
                 .ApplyAudioSpecificOutputSettings(settings)
-                .ForceFormat("mp4")
-                .WithCustomArgument("-movflags frag_keyframe")
+                .ForceFormat("nut")
                 .SelectStream(0, 0, Channel.Audio)
                 .WithAudioCodec("libopus")
             )
@@ -63,8 +62,7 @@ public class h264 : IVideoFormat
         await FFMpegArguments.FromFileInput(originalVideoFileName, true, options => options.ApplyVideoSpecificInputSettings(settings))
             .OutputToPipe(new StreamPipeSink(outputStream), options => options
                 .ApplyVideoSpecificOutputSettings(settings)
-                .ForceFormat("mp4")
-                .WithCustomArgument("-movflags frag_keyframe")
+                .ForceFormat("nut")
                 .DisableChannel(Channel.Audio)
                 .WithVideoCodec(VideoCodec.LibX264)
                 .WithSpeedPreset(SPEED_PRESET)
