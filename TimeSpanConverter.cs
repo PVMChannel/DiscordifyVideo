@@ -22,7 +22,7 @@ public class TimeSpanConverter : IValueConverter
             }
             else if (targetType.IsAssignableTo(typeof(string)))
             {
-                return $"{timeSpan.Hours.ToString().PadLeft(2, '0')}:{timeSpan.Minutes.ToString().PadLeft(2, '0')}:{timeSpan.Seconds.ToString().PadLeft(2, '0')}.{Math.Round((double) timeSpan.Milliseconds / 100).ToString().PadLeft(2, '0')}";
+                return $"{timeSpan.Hours.ToString().PadLeft(2, '0')}:{timeSpan.Minutes.ToString().PadLeft(2, '0')}:{timeSpan.Seconds.ToString().PadLeft(2, '0')}{culture.NumberFormat.NumberDecimalSeparator}{Math.Round((double) timeSpan.Milliseconds / 100).ToString().PadLeft(2, '0')}";
             }
         }
         // converter used for the wrong type
@@ -41,7 +41,7 @@ public class TimeSpanConverter : IValueConverter
         {
             try
             {
-                string[] timeStringSplitByDot = timeString.Split('.');
+                string[] timeStringSplitByDot = timeString.Split(culture.NumberFormat.NumberDecimalSeparator);
                 int[] timeStringSplitByColon = timeStringSplitByDot[0].Split(':').Select(val => Int32.Parse(val)).ToArray();
                 return new TimeSpan(0, timeStringSplitByColon[0], timeStringSplitByColon[1], timeStringSplitByColon[2], Int32.Parse(timeStringSplitByDot[1].PadRight(4, '0')));
             }
